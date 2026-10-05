@@ -1,0 +1,569 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Connect Android Promo</title>
+<style>
+  :root {
+    --bg: #0a0c10;
+    --cream: #f4efe4;
+    --muted: #8b93a1;
+    --blue: #1a6bd0;
+    --blue-bright: #5aa2ff;
+    --green: #3ddc84;
+    --red: #ff5d5d;
+    --amber: #ffb547;
+    --sans: -apple-system, "SF Pro Display", system-ui, sans-serif;
+    --mono: "SF Mono", SFMono-Regular, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  body { font-family: var(--sans); color: var(--cream); -webkit-font-smoothing: antialiased; }
+  .scene { position: absolute; inset: 0; opacity: 0; display: none; }
+  .abs { position: absolute; }
+  .center { position: absolute; left: 0; right: 0; text-align: center; }
+
+  /* ---------- Scene A ---------- */
+  #aKick { top: 400px; font: 500 30px var(--mono); color: var(--muted); letter-spacing: .04em; }
+  #aLine { top: 450px; font: 700 104px var(--sans); letter-spacing: -.02em; }
+  #aSub  { top: 600px; font: 500 44px var(--sans); color: var(--muted); }
+  .caret { display: inline-block; width: 6px; height: 0.9em; background: var(--blue-bright); margin-left: 8px; vertical-align: -0.08em; }
+
+  /* ---------- Scene B: the old routine ---------- */
+  #bCam { position: absolute; inset: 0; transform-origin: 40% 50%; }
+  #sB { background: radial-gradient(ellipse at 30% 40%, #1a1414 0%, #0b0b0d 70%); }
+  .mac { position: absolute; background: #ececec; border-radius: 14px; box-shadow: 0 40px 120px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.4); color: #1d1d1f; overflow: hidden; }
+  .titlebar { height: 52px; display: flex; align-items: center; justify-content: center; position: relative; background: #e3e3e3; border-bottom: 1px solid #cfcfcf; font: 600 20px var(--sans); color: #444; }
+  .lights { position: absolute; left: 20px; top: 18px; display: flex; gap: 10px; }
+  .lights i { width: 16px; height: 16px; border-radius: 50%; display: block; }
+  .lights i:nth-child(1) { background: #ff5f57; } .lights i:nth-child(2) { background: #febc2e; } .lights i:nth-child(3) { background: #28c840; }
+  #oldWin { left: 150px; top: 210px; width: 840px; height: 620px; }
+  .tabs { display: flex; gap: 40px; padding: 24px 40px 0; font: 600 21px var(--sans); color: #777; border-bottom: 1px solid #d6d6d6; }
+  .tabs span { padding-bottom: 14px; }
+  .tabs .on { color: #1d1d1f; border-bottom: 3px solid #3a7bd5; }
+  .oldBody { display: flex; gap: 40px; padding: 40px; }
+  .qrBox { width: 300px; height: 300px; background: #fff; border-radius: 10px; padding: 18px; position: relative; flex: none; }
+  .qrBox svg { position: absolute; inset: 18px; }
+  .oldText h3 { margin: 10px 0 14px; font: 700 28px var(--sans); }
+  .oldText p { margin: 0; font: 400 22px/1.45 var(--sans); color: #555; }
+  .oldFoot { position: absolute; left: 0; right: 0; bottom: 0; height: 96px; display: flex; align-items: center; padding: 0 40px; gap: 18px; border-top: 1px solid #d6d6d6; font: 500 23px var(--sans); color: #444; }
+  .oldFoot .btn { margin-left: auto; padding: 10px 26px; border-radius: 8px; background: #fff; border: 1px solid #c9c9c9; font: 500 20px var(--sans); }
+  #oldErr { left: 230px; top: 690px; width: 680px; padding: 22px 28px; border-radius: 12px; background: #3a1214; border: 2px solid var(--red); color: #ffd9d9; font: 600 26px var(--sans); display: flex; align-items: center; gap: 16px; box-shadow: 0 20px 60px rgba(0,0,0,.5); opacity: 0; }
+  #oldErr b { color: var(--red); font-size: 30px; }
+  #clock { left: 1090px; top: 150px; width: 700px; }
+  #clock .lbl { font: 700 22px var(--mono); letter-spacing: .18em; color: #d98080; }
+  #clock .dig { font: 700 132px/1.05 var(--mono); color: var(--amber); letter-spacing: -.02em; }
+  .note { position: absolute; width: 330px; min-height: 112px; padding: 18px 22px; background: #f7e27a; color: #2b2410; font: 30px/1.15 "Marker Felt", "Chalkboard SE", cursive; box-shadow: 0 14px 30px rgba(0,0,0,.45); opacity: 0; display: flex; align-items: center; }
+  .note.mono { font: 600 25px/1.25 var(--mono); }
+  .note.pink { background: #ffb3c1; } .note.blue { background: #a8d8ff; } .note.green { background: #b9f0b0; }
+  #bDim { position: absolute; inset: 0; background: rgba(6,6,8,.8); opacity: 0; }
+  #bCap1 { top: 380px; font: 800 150px var(--sans); letter-spacing: -.03em; opacity: 0; }
+  #bCap2 { top: 580px; font: 600 64px var(--sans); color: var(--amber); opacity: 0; }
+
+  /* ---------- Scene C ---------- */
+  #c1 { top: 380px; font: 500 58px var(--sans); color: var(--muted); }
+  #c2 { top: 500px; font: 800 104px var(--sans); letter-spacing: -.025em; }
+  #c2 span { display: inline-block; margin: 0 .14em; }
+  #c2 .hl { color: var(--blue-bright); }
+
+  /* ---------- Scene D: Connect Android ---------- */
+  #sD { background: radial-gradient(ellipse at 55% 45%, #0f2442 0%, #0a0f1a 55%, #080a0e 100%); }
+  #labels { left: 120px; top: 330px; width: 560px; }
+  #labels div { font: 800 92px/1.15 var(--sans); letter-spacing: -.03em; opacity: 0; }
+  #labels .g { color: var(--green); }
+  #caWin { left: 740px; top: 150px; width: 460px; transform-origin: 0 0; }
+  #caWin .titlebar { height: 28px; font: 600 13px var(--sans); background: #ececec; border-bottom: none; color: #555; }
+  #caWin .lights { left: 10px; top: 8px; gap: 8px; } #caWin .lights i { width: 12px; height: 12px; }
+  .caBody { height: 590px; padding: 28px; display: flex; flex-direction: column; align-items: center; gap: 18px; position: relative; }
+  .caIcon { height: 46px; display: flex; align-items: center; justify-content: center; }
+  .caTitle { font: 700 26px var(--sans); color: #1d1d1f; }
+  .caStatus { font: 400 13px/1.35 var(--sans); color: #1d1d1f; text-align: center; min-height: 36px; width: 100%; }
+  .caMid { width: 240px; height: 240px; position: relative; flex: none; }
+  .caMid > * { position: absolute; inset: 0; }
+  .caQR { background: #fff; border-radius: 12px; padding: 16px; }
+  .caInstr { font: 400 12px/1.35 var(--sans); color: #1d1d1f; text-align: center; padding: 0 10px; }
+  .caBtns { position: absolute; left: 28px; right: 28px; bottom: 28px; display: flex; justify-content: space-between; }
+  .mbtn { font: 400 13px var(--sans); padding: 3px 12px; border-radius: 6px; background: #fff; color: #1d1d1f; box-shadow: 0 0 0 .5px rgba(0,0,0,.25), 0 1px 1px rgba(0,0,0,.08); }
+  .mbtn.def { background: #0a7aff; color: #fff; box-shadow: 0 0 0 .5px rgba(0,0,0,.15); }
+  .connected { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; }
+  .connected .nm { font: 700 17px var(--sans); color: #1d1d1f; }
+  .connected .sub { font: 400 13px/1.35 var(--sans); color: #6e6e73; }
+  #waves { left: 1345px; top: 470px; width: 150px; height: 140px; }
+  #cursor { left: 0; top: 0; width: 34px; height: 46px; opacity: 0; }
+  #dCap { top: 950px; font: 600 48px var(--sans); color: var(--cream); opacity: 0; }
+  #dCap b { color: var(--green); font-weight: 700; }
+
+  /* ---------- Phone ---------- */
+  .phone { position: absolute; width: 360px; height: 740px; border-radius: 54px; background: #15171b; padding: 12px; box-shadow: 0 40px 100px rgba(0,0,0,.6), inset 0 0 0 2px #2c3037; }
+  .screen { position: relative; width: 336px; height: 716px; border-radius: 43px; overflow: hidden; background: #000; }
+  .screen > .view { position: absolute; inset: 0; opacity: 0; }
+  .sbar { position: absolute; left: 0; right: 0; top: 0; height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 6px 28px 0; font: 600 15px var(--sans); color: #fff; z-index: 5; }
+  .punch { position: absolute; left: 50%; top: 14px; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; background: #000; z-index: 6; box-shadow: 0 0 0 2px #222; }
+  .abar { position: absolute; left: 0; right: 0; top: 44px; height: 64px; display: flex; align-items: center; gap: 18px; padding: 0 22px; font: 500 22px var(--sans); color: #e8eaed; }
+  .row { padding: 16px 24px; font: 400 18px/1.3 var(--sans); color: #e8eaed; }
+  .row small { display: block; color: #9aa0a6; font-size: 14px; margin-top: 3px; }
+
+  /* ---------- Scene E: terminal + agent ---------- */
+  #sE { background: radial-gradient(ellipse at 70% 50%, #0d1d33 0%, #090c12 65%); }
+  #eTop { top: 70px; font: 700 54px var(--sans); letter-spacing: -.02em; }
+  #eTop span { color: var(--blue-bright); }
+  #term { left: 110px; top: 175px; width: 1130px; height: 760px; background: #0f1216; border-radius: 14px; box-shadow: 0 40px 120px rgba(0,0,0,.6), 0 0 0 1px #262b33; overflow: hidden; }
+  #term .titlebar { background: #1a1e24; border-bottom: 1px solid #262b33; color: #9aa3ad; font: 500 18px var(--sans); }
+  #termBody { padding: 30px 36px; font: 400 24px/1.6 var(--mono); color: #d6dbe1; white-space: pre; }
+  #termBody .p { color: var(--green); }
+  #termBody .dim { color: #7d8792; }
+  #termBody .tool { color: #9fc4ff; }
+  #termBody .ok { color: var(--green); font-weight: 600; }
+  .agentBox { margin: 14px 0 12px; border: 1.5px solid #3a4250; border-radius: 10px; padding: 12px 18px; white-space: pre-wrap; }
+  #eFoot { top: 975px; font: 500 26px var(--sans); color: var(--muted); }
+
+  /* ---------- Scene F: end card ---------- */
+  #sF { background: radial-gradient(ellipse at 50% 42%, #10264a 0%, #0a0f1a 55%, #07090d 100%); }
+  #fIcon { left: 850px; top: 150px; width: 220px; height: 220px; }
+  #fName { top: 400px; font: 800 120px var(--sans); letter-spacing: -.035em; }
+  #fTag { top: 545px; font: 700 64px var(--sans); letter-spacing: -.02em; }
+  #fTag .g { color: var(--green); }
+  #fDesc { top: 650px; font: 500 34px var(--sans); color: var(--muted); }
+  #fUrl { top: 740px; }
+  #fUrl span { display: inline-block; padding: 18px 40px; border-radius: 999px; border: 1.5px solid #34465f; background: rgba(90,162,255,.08); font: 500 34px var(--mono); color: var(--cream); }
+  #fSpec { top: 860px; font: 500 24px var(--mono); color: #66707e; letter-spacing: .04em; }
+  #blackout { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<!-- A: cold open -->
+<div class="scene" id="sA">
+  <div class="center" id="aKick">9:02 AM · new bug report</div>
+  <div class="center" id="aLine"></div>
+  <div class="center" id="aSub">First, connect the phone.</div>
+</div>
+
+<!-- B: the old routine (parody, unbranded) -->
+<div class="scene" id="sB">
+  <div id="bCam">
+    <div class="mac" id="oldWin">
+      <div class="titlebar"><div class="lights"><i></i><i></i><i></i></div>Pair devices over Wi‑Fi</div>
+      <div class="tabs"><span class="on">Pair using QR code</span><span>Pair using pairing code</span></div>
+      <div class="oldBody">
+        <div class="qrBox" id="oldQR"></div>
+        <div class="oldText">
+          <h3>Scan with your phone</h3>
+          <p>Developer options → Wireless debugging → Pair device with QR code</p>
+        </div>
+      </div>
+      <div class="oldFoot"><svg id="oldSpin" width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="13" fill="none" stroke="#d0d0d0" stroke-width="4"/><path d="M17 4 A13 13 0 0 1 30 17" fill="none" stroke="#3a7bd5" stroke-width="4" stroke-linecap="round"/></svg><span>Waiting for device…</span><span class="btn">Close</span></div>
+    </div>
+    <div class="abs" id="oldErr"><b>⚠</b><span id="oldErrTxt">Pairing failed. Try again.</span></div>
+    <div class="abs" id="clock"><div class="lbl">TIME SPENT PAIRING</div><div class="dig" id="clockDig">00:00</div></div>
+    <div id="notes"></div>
+  </div>
+  <div id="bDim"></div>
+  <div class="center" id="bCap1">Minute 47.</div>
+  <div class="center" id="bCap2">Still “Waiting for device…”</div>
+</div>
+
+<!-- C: founder line -->
+<div class="scene" id="sC">
+  <div class="center" id="c1"></div>
+  <div class="center" id="c2"><span>So</span><span>I</span><span>built</span><span>a</span><span class="hl">tiny</span><span class="hl">Mac</span><span class="hl">app</span><span>for</span><span>it.</span></div>
+</div>
+
+<!-- D: Connect Android -->
+<div class="scene" id="sD">
+  <div class="abs" id="labels"><div id="l1">Scan.</div><div id="l2">Pair.</div><div id="l3" class="g">Connected.</div></div>
+  <div class="mac" id="caWin">
+    <div class="titlebar"><div class="lights"><i></i><i></i><i></i></div>Connect Android</div>
+    <div class="caBody">
+      <div class="caIcon" id="caIcon"></div>
+      <div class="caTitle">Connect Android</div>
+      <div class="caStatus" id="caStatus"></div>
+      <div class="caMid">
+        <div class="caQR" id="caQR"></div>
+        <div id="caSpin" style="display:flex;align-items:center;justify-content:center"></div>
+        <div class="connected" id="caDone">
+          <svg width="70" height="100" viewBox="0 0 70 100"><rect x="4" y="3" width="62" height="94" rx="13" fill="none" stroke="#8e8e93" stroke-width="5"/><rect x="25" y="10" width="20" height="5" rx="2.5" fill="#8e8e93"/></svg>
+          <div class="nm">Pixel 9</div>
+          <div class="sub">You can close this window.<br>Your debugging connection stays available.</div>
+        </div>
+      </div>
+      <div class="caInstr" id="caInstr">On your phone: Developer options → Wireless debugging → Pair device with QR code</div>
+      <div class="caBtns"><span class="mbtn">Details</span><span class="mbtn def" id="caBtn">Cancel</span></div>
+    </div>
+  </div>
+  <svg class="abs" id="waves" viewBox="0 0 150 140"></svg>
+  <div class="phone" id="dPhone" style="left:1490px;top:170px">
+    <div class="screen">
+      <div class="punch"></div>
+      <div class="sbar"><span>9:02</span><span>▾ ▮</span></div>
+      <!-- scanner -->
+      <div class="view" id="dv1" style="background:#000">
+        <div class="abar" style="background:#1b1c1f">←&nbsp;&nbsp;Scan QR code</div>
+        <div class="abs" style="left:0;right:0;top:108px;height:500px;background:radial-gradient(ellipse at 50% 45%,#3a4252 0%,#14171d 75%);overflow:hidden">
+          <div class="abs" id="camQR" style="left:78px;top:110px;width:180px;height:180px;background:#fff;border-radius:6px;padding:10px;opacity:0"></div>
+          <svg class="abs" style="left:48px;top:80px" width="240" height="240" viewBox="0 0 240 240" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"><path d="M4 50V4h46M190 4h46v46M236 190v46h-46M50 236H4v-46"/></svg>
+          <div class="abs" id="scanLine" style="left:60px;width:216px;height:4px;top:100px;background:linear-gradient(90deg,transparent,#5aa2ff,transparent);box-shadow:0 0 18px #5aa2ff"></div>
+        </div>
+        <div class="abs" style="left:0;right:0;top:620px;text-align:center;font:400 16px/1.4 var(--sans);color:#c4c7c5">Scan a QR code to pair<br>over Wi‑Fi</div>
+      </div>
+      <!-- pairing -->
+      <div class="view" id="dv2" style="background:#121316">
+        <div class="abar">←&nbsp;&nbsp;Wireless debugging</div>
+        <div class="abs" style="left:30px;right:30px;top:290px;padding:28px;border-radius:24px;background:#2b2d31;text-align:center;font:500 20px var(--sans);color:#e8eaed">
+          <svg id="dPairSpin" width="44" height="44" viewBox="0 0 44 44" style="display:block;margin:0 auto 16px"><path d="M22 4 A18 18 0 1 1 4 22" fill="none" stroke="#a8c7fa" stroke-width="5" stroke-linecap="round"/></svg>
+          Pairing with device…
+        </div>
+      </div>
+      <!-- connected -->
+      <div class="view" id="dv3" style="background:#121316">
+        <div class="abar">←&nbsp;&nbsp;Wireless debugging</div>
+        <div class="abs" style="left:16px;right:16px;top:120px;height:72px;border-radius:36px;background:#2f3f5c;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font:500 19px var(--sans);color:#fff">Use wireless debugging
+          <span style="width:52px;height:30px;border-radius:15px;background:#a8c7fa;position:relative;display:inline-block"><i style="position:absolute;right:4px;top:4px;width:22px;height:22px;border-radius:50%;background:#062e6f"></i></span></div>
+        <div class="abs" style="left:0;right:0;top:206px">
+          <div class="row">Device name<small>Pixel 9</small></div>
+          <div class="row">Pair device with QR code</div>
+          <div class="row">Pair device with pairing code</div>
+          <div class="row" style="color:#a8c7fa;font-size:15px;padding-top:22px">Paired devices</div>
+          <div class="row" id="pairedRow">MacBook Pro<small style="color:#6dd58c">● Currently connected</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <svg class="abs" id="cursor" viewBox="0 0 34 46"><path d="M3 3 L3 37 L11.5 29 L17.5 43 L23 40.5 L17 27 L29 27 Z" fill="#111" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/></svg>
+  <div class="center" id="dCap">Close the app. <b>ADB stays connected.</b></div>
+</div>
+
+<!-- E: agent on the real phone -->
+<div class="scene" id="sE">
+  <div class="center" id="eTop">Then put your coding agent to work, <span>on the real phone.</span></div>
+  <div class="abs" id="term">
+    <div class="titlebar"><div class="lights"><i></i><i></i><i></i></div>zsh — ~/sample-app</div>
+    <div id="termBody"></div>
+  </div>
+  <div class="phone" id="ePhone" style="left:1410px;top:175px">
+    <div class="screen">
+      <div class="punch"></div>
+      <div class="sbar"><span>9:04</span><span>▾ ▮</span></div>
+      <div class="view" id="ev1" style="background:linear-gradient(160deg,#27407a 0%,#5a3d7a 55%,#c06a6a 100%)">
+        <div class="abs" style="left:0;right:0;top:120px;text-align:center;font:300 86px var(--sans);color:#fff">9:04</div>
+        <div class="abs" style="left:0;right:0;top:225px;text-align:center;font:500 18px var(--sans);color:#f1e9ff">Saturday, October 3</div>
+        <div class="abs" style="left:38px;right:38px;bottom:60px;display:flex;justify-content:space-between">
+          <i style="width:56px;height:56px;border-radius:50%;background:#e8eaed"></i><i style="width:56px;height:56px;border-radius:50%;background:#a8c7fa"></i><i style="width:56px;height:56px;border-radius:50%;background:#6dd58c"></i><i style="width:56px;height:56px;border-radius:50%;background:#ffb4ab"></i>
+        </div>
+      </div>
+      <div class="view" id="ev2" style="background:#fdf7ff">
+        <div class="abs" style="left:0;right:0;top:0;height:44px;background:#e9ddff"></div>
+        <div class="abs" style="left:0;right:0;top:44px;height:64px;background:#e9ddff;font:500 22px var(--sans);color:#21005d;padding:18px 24px">Sample</div>
+        <div class="abs" style="left:28px;right:28px;top:140px;height:200px;border-radius:24px;background:linear-gradient(135deg,#d0bcff,#a8c7fa)"></div>
+        <div class="abs" style="left:28px;top:368px;font:700 28px var(--sans);color:#1d1b20">Welcome back</div>
+        <div class="abs" style="left:28px;top:410px;width:280px;font:400 16px/1.4 var(--sans);color:#49454f">Sign in to sync your notes across devices.</div>
+        <div class="abs" id="signBtn" style="left:28px;right:28px;top:488px;height:46px;border-radius:23px;background:#6750a4;color:#fff;font:600 17px/46px var(--sans);text-align:center">Sign in</div>
+        <div class="abs" id="ripple" style="left:168px;top:511px;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.55);transform:translate(-50%,-50%);opacity:0"></div>
+      </div>
+      <div class="view" id="ev3" style="background:#fdf7ff">
+        <div class="abs" style="left:0;right:0;top:0;height:44px;background:#fdf7ff"></div>
+        <div class="abs" style="left:24px;top:60px;font:400 26px var(--sans);color:#1d1b20">←</div>
+        <div class="abs" style="left:28px;top:130px;font:700 34px var(--sans);color:#1d1b20">Sign in</div>
+        <div class="abs" style="left:28px;right:28px;top:210px;height:58px;border-radius:8px;border:1.5px solid #79747e;font:400 17px/56px var(--sans);color:#49454f;padding-left:16px">Email</div>
+        <div class="abs" style="left:28px;right:28px;top:290px;height:58px;border-radius:8px;border:1.5px solid #79747e;font:400 17px/56px var(--sans);color:#49454f;padding-left:16px">Password</div>
+        <div class="abs" style="left:28px;right:28px;top:380px;height:46px;border-radius:23px;background:#6750a4;color:#fff;font:600 17px/46px var(--sans);text-align:center">Continue</div>
+      </div>
+      <div class="abs" id="capFlash" style="inset:0;background:#fff;opacity:0;z-index:9"></div>
+    </div>
+  </div>
+  <div class="center" id="eFoot">Claude Code, Codex, or any agent with ADB / Android tools configured.</div>
+</div>
+
+<!-- F: end card -->
+<div class="scene" id="sF">
+  <img class="abs" id="fIcon" src="icon.png">
+  <div class="center" id="fName">Connect Android</div>
+  <div class="center" id="fTag">Less pairing. <span class="g">More building.</span></div>
+  <div class="center" id="fDesc">Scan a QR code. Connect your phone. Put your agent to work.</div>
+  <div class="center" id="fUrl"><span>github.com/StoneHub/connect-android</span></div>
+  <div class="center" id="fSpec">macOS 14+ · Android 11+ · v0.1.0</div>
+</div>
+
+<div id="blackout"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const easeOut = x => 1 - Math.pow(1 - x, 3);
+const easeIn = x => x * x * x;
+const easeInOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const lerp = (a, b, x) => a + (b - a) * x;
+// Damped spring from 0 to 1, x in seconds since start. Bouncy but settles in ~0.6s.
+function spring(x, w = 13, z = 0.5) {
+  if (x <= 0) return 0;
+  const wd = w * Math.sqrt(1 - z * z);
+  return 1 - Math.exp(-z * w * x) * (Math.cos(wd * x) + (z * w / wd) * Math.sin(wd * x));
+}
+function css(el, o) {
+  if (typeof el === 'string') el = $(el);
+  const tf = [];
+  if (o.x !== undefined || o.y !== undefined) tf.push(`translate(${o.x || 0}px,${o.y || 0}px)`);
+  if (o.s !== undefined) tf.push(`scale(${o.s})`);
+  if (o.r !== undefined) tf.push(`rotate(${o.r}deg)`);
+  if (tf.length) el.style.transform = tf.join(' ');
+  if (o.o !== undefined) el.style.opacity = o.o;
+  if (o.f !== undefined) el.style.filter = o.f;
+}
+// Pop-in: fades and springs from below, starting at t0.
+function pop(el, t, t0, dy = 40, s0 = .92) {
+  const k = spring(t - t0);
+  css(el, { o: clamp((t - t0) / .18), y: (1 - k) * dy, s: lerp(s0, 1, k) });
+}
+function typed(str, t, t0, cps) { return str.slice(0, clamp(Math.floor((t - t0) * cps), 0, str.length)); }
+
+// Deterministic pseudo-QR (illustrative only, encodes nothing).
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function qrSVG(seed, size, color = '#000') {
+  const N = 29, r = mulberry32(seed), m = size / N;
+  const finder = (x, y) => { const pts = [[0,0],[N-7,0],[0,N-7]]; for (const [fx, fy] of pts) if (x >= fx && x < fx + 7 && y >= fy && y < fy + 7) { const dx = x - fx, dy = y - fy; return (dx === 0 || dx === 6 || dy === 0 || dy === 6 || (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4)) ? 1 : 0; } return -1; };
+  let s = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges">`;
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    let v = finder(x, y);
+    const nearFinder = (x < 8 && y < 8) || (x >= N - 8 && y < 8) || (x < 8 && y >= N - 8);
+    if (v === -1) v = nearFinder ? 0 : (y === 6 || x === 6) ? ((x + y) % 2 === 0 ? 1 : 0) : (r() < .5 ? 1 : 0);
+    if (v) s += `<rect x="${(x * m).toFixed(2)}" y="${(y * m).toFixed(2)}" width="${(m + .3).toFixed(2)}" height="${(m + .3).toFixed(2)}" fill="${color}"/>`;
+  }
+  return s + '</svg>';
+}
+function macSpinner(size) {
+  let s = `<svg width="${size}" height="${size}" viewBox="-16 -16 32 32">`;
+  for (let i = 0; i < 12; i++) s += `<line x1="0" y1="-7" x2="0" y2="-13" stroke="#6e6e73" stroke-width="2.6" stroke-linecap="round" opacity="${(0.15 + 0.85 * (i / 11)).toFixed(2)}" transform="rotate(${i * 30})"/>`;
+  return s + '</svg>';
+}
+const ICON_RADIO = `<svg width="64" height="46" viewBox="0 0 64 46" fill="none" stroke="#0a7aff" stroke-width="3.2" stroke-linecap="round"><rect x="23" y="4" width="18" height="38" rx="4.5"/><path d="M15 13a14 14 0 0 0 0 20M8 8a22 22 0 0 0 0 30M49 13a14 14 0 0 1 0 20M56 8a22 22 0 0 1 0 30"/></svg>`;
+const ICON_CHECK = `<svg width="46" height="46" viewBox="0 0 46 46"><circle cx="23" cy="23" r="21" fill="#28c840"/><path d="M13 23.5l6.5 6.5L33 16.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+// ---------- one-time setup ----------
+const OLD_QR = [11, 23, 37].map(s => qrSVG(s, 264));
+$('oldQR').innerHTML = OLD_QR.map((q, i) => `<div class="oldq" style="position:absolute;inset:18px;opacity:${i ? 0 : 1}">${q}</div>`).join('');
+$('caQR').innerHTML = qrSVG(91, 208);
+$('camQR').innerHTML = qrSVG(91, 160);
+$('caSpin').innerHTML = macSpinner(40);
+
+const NOTES = [
+  [3.9, 'Same Wi‑Fi? ✓', '', 1090, 400, -4],
+  [4.6, 'Toggle Wireless debugging off… on…', 'pink', 1450, 395, 3],
+  [5.3, '$ adb kill-server', 'mono', 1100, 540, 2.5],
+  [6.4, 'Try the pairing code instead', 'blue', 1455, 535, -3],
+  [7.1, 'Restart the IDE', '', 1085, 680, -2],
+  [7.8, 'Restart the phone', 'green', 1450, 675, 4],
+  [8.7, 'Is it… the router?', 'pink', 1095, 820, 3],
+  [9.3, '$ adb kill-server  # again', 'mono', 1455, 815, -4],
+];
+$('notes').innerHTML = NOTES.map((n, i) => `<div class="note ${n[2]}" id="note${i}" style="left:${n[3]}px;top:${n[4]}px">${n[1]}</div>`).join('');
+
+const TERM = {
+  cmd: 'adb devices -l',
+  dev: 'adb-3A1F7C2E-x7Kq2p._adb-tls-connect._tcp  device  model:Pixel_9',
+  ask: 'Open the sample app, tap “Sign in”, and check the next screen.',
+  tools: [
+    [28.0, 'adb shell am start -n com.example.sample/.Main'],
+    [28.5, 'adb exec-out screencap -p > screen.png'],
+    [29.0, 'adb shell input tap 540 1712'],
+    [29.5, 'adb exec-out screencap -p > screen.png'],
+  ],
+  done: [30.0, '✓ Tapped “Sign in”. The sign-in form loaded on Pixel 9.'],
+};
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// ---------- scene windows ----------
+const SCENES = { sA: [0, 3.0], sB: [3.0, 12.4], sC: [12.4, 15.4], sD: [15.4, 24.2], sE: [24.2, 31.0], sF: [31.0, 35.0] };
+const DURATION = 35.0;
+
+// Resting geometry for the Done-button cursor target.
+const WIN_SCALE = 1.3;
+let doneTarget = null;
+function measureDone() {
+  const sD = $('sD'); sD.style.display = 'block';
+  css('caWin', { s: WIN_SCALE, o: 1 });
+  const r = $('caBtn').getBoundingClientRect();
+  doneTarget = { x: r.left + r.width * .55, y: r.top + r.height * .6 };
+  sD.style.display = 'none';
+}
+
+window.seek = function (t) {
+  if (!doneTarget) measureDone();
+  for (const [id, [a, b]] of Object.entries(SCENES)) {
+    const el = $(id), on = t >= a - .001 && t < b + .35;
+    el.style.display = on ? 'block' : 'none';
+    if (!on) continue;
+    let o = 1;
+    if (id === 'sC' || id === 'sF') o = prog(t, a, a + .25);
+    if (id === 'sE') o = prog(t, a, a + .3);
+    if (id === 'sD') o = 1 - prog(t, b - .3, b);
+    if (id === 'sA' || id === 'sB' || id === 'sC' || id === 'sE') o = Math.min(o, t < b ? 1 : 0);
+    if (id === 'sD') o = t < b ? o : 0;
+    el.style.opacity = o;
+  }
+  css('blackout', { o: prog(t, DURATION - .35, DURATION) });
+
+  // ---------- A ----------
+  if (t < 3.0) {
+    const line = typed('I just wanted to debug my app.', t, .35, 22);
+    $('aLine').innerHTML = esc(line) + (Math.floor(t * 2.2) % 2 === 0 || line.length < 30 ? '<span class="caret"></span>' : '<span class="caret" style="opacity:0"></span>');
+    css('aKick', { o: prog(t, .1, .5) });
+    pop('aSub', t, 2.0, 24);
+  }
+
+  // ---------- B ----------
+  if (t >= 3.0 && t < 12.8) {
+    const bt = t - 3.0;
+    // camera: slow push-in plus a shake on each error
+    let shake = 0;
+    for (const e of [6.0, 8.4]) { const d = t - e; if (d > 0 && d < .45) shake += Math.sin(d * 70) * 14 * (1 - d / .45); }
+    css('bCam', { s: lerp(1, 1.05, easeInOut(prog(t, 3, 12.4))), x: shake });
+    pop('oldWin', t, 3.0, 60, .96);
+    $('oldSpin').style.transform = `rotate(${bt * 400}deg)`;
+    const qi = t < 6.9 ? 0 : t < 9.3 ? 1 : 2;
+    const flick = [6.9, 9.3].some(e => t > e && t < e + .12);
+    document.querySelectorAll('.oldq').forEach((q, i) => q.style.opacity = (i === qi && !flick) ? 1 : 0);
+    // elapsed clock: accelerates to 47:12 by 10.2s
+    const secs = Math.floor(2832 * Math.pow(prog(t, 3.4, 10.2), 2.3));
+    $('clockDig').textContent = `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
+    $('clockDig').style.color = secs > 1200 ? '#ff6b5d' : secs > 400 ? '#ff9447' : '#ffb547';
+    pop('clock', t, 3.3, 30);
+    NOTES.forEach((n, i) => {
+      const k = spring(t - n[0], 15, .45);
+      css(`note${i}`, { o: clamp((t - n[0]) / .1), s: lerp(1.35, 1, k), r: n[5] + (1 - k) * 10 });
+    });
+    // error toasts
+    const e1 = prog(t, 6.0, 6.12) * (1 - prog(t, 6.85, 7.0));
+    const e2 = prog(t, 8.4, 8.52) * (1 - prog(t, 9.25, 9.4));
+    $('oldErrTxt').textContent = t < 7.5 ? 'Pairing failed. Try again.' : 'Device not found. Try again.';
+    css('oldErr', { o: Math.max(e1, e2), y: (1 - Math.max(e1, e2)) * 20 });
+    // punchline
+    css('bDim', { o: .82 * easeOut(prog(t, 10.1, 10.5)) });
+    pop('bCap1', t, 10.25, 50, .85);
+    pop('bCap2', t, 10.85, 30);
+  }
+
+  // ---------- C ----------
+  if (t >= 12.4 && t < 15.8) {
+    $('c1').textContent = typed('I got tired of fighting wireless debugging in Android Studio.', t, 12.55, 48);
+    [...$('c2').children].forEach((w, i) => pop(w, t, 13.95 + i * .07, 50, .7));
+  }
+
+  // ---------- D ----------
+  if (t >= 15.4 && t < 24.6) {
+    const kw = spring(t - 15.45, 11, .55);
+    const closing = easeIn(prog(t, 22.45, 22.85));
+    css('caWin', { o: clamp((t - 15.45) / .2) * (1 - closing), y: (1 - kw) * 80 + closing * 30, s: WIN_SCALE * lerp(.9, 1, kw) * (1 - .08 * closing) });
+    const kp = spring(t - 16.0, 11, .55);
+    css('dPhone', { o: clamp((t - 16.0) / .2), x: (1 - kp) * 260, r: (1 - kp) * 6 });
+
+    const phase = t < 18.0 ? 'scan' : t < 18.9 ? 'pair' : t < 19.8 ? 'verify' : 'done';
+    $('caStatus').textContent = {
+      scan: 'On your phone, open Wireless debugging → Pair device with QR code.',
+      pair: 'Pairing with your phone…',
+      verify: 'Paired. Verifying the debugging connection…',
+      done: 'Connected: Pixel 9. You can close this app.',
+    }[phase];
+    $('caIcon').innerHTML = phase === 'done' ? ICON_CHECK : ICON_RADIO;
+    if (phase === 'done') css('caIcon', { s: lerp(.4, 1, spring(t - 19.8, 16, .4)) }); else css('caIcon', { s: 1 });
+    $('caQR').style.opacity = phase === 'scan' ? 1 : 0;
+    $('caInstr').style.opacity = phase === 'scan' ? 1 : 0;
+    $('caSpin').style.opacity = (phase === 'pair' || phase === 'verify') ? 1 : 0;
+    $('caSpin').firstChild.style.transform = `rotate(${Math.floor(t * 12) * 30}deg)`;
+    $('caDone').style.opacity = phase === 'done' ? prog(t, 19.8, 20.0) : 0;
+    $('caBtn').textContent = phase === 'done' ? 'Done' : 'Cancel';
+    const pressed = t > 22.2 && t < 22.38;
+    $('caBtn').style.filter = pressed ? 'brightness(.8)' : 'none';
+
+    // phone screens
+    $('dv1').style.opacity = t < 18.0 ? 1 : 0;
+    $('dv2').style.opacity = t >= 18.0 && t < 19.8 ? 1 : 0;
+    $('dv3').style.opacity = t >= 19.8 ? 1 : 0;
+    $('camQR').style.opacity = prog(t, 16.7, 17.0) * .9;
+    css('camQR', { r: -4 + 4 * easeOut(prog(t, 16.7, 17.6)), s: lerp(.85, 1, easeOut(prog(t, 16.7, 17.6))) });
+    $('scanLine').style.top = (100 + 220 * (0.5 - 0.5 * Math.cos((t - 16.2) * 4.2))) + 'px';
+    $('scanLine').style.opacity = t < 17.85 ? 1 : 0;
+    $('dPairSpin').style.transform = `rotate(${t * 420}deg)`;
+    css('pairedRow', { o: prog(t, 19.9, 20.2) });
+
+    // radio waves between phone and Mac
+    let w = '';
+    const green = t >= 19.8;
+    for (let i = 0; i < 3; i++) {
+      const ph = ((t * 1.6 + i / 3) % 1);
+      const active = t > 17.85 && t < 20.6;
+      const o = active ? (green ? (1 - prog(t, 20.1, 20.6)) * .9 : Math.sin(ph * Math.PI) * .9) : 0;
+      const r = green ? 22 + i * 18 : 14 + ph * 54;
+      w += `<path d="M ${75 - r * .7} ${70 - r * .7} A ${r} ${r} 0 0 1 ${75 - r * .7} ${70 + r * .7}" transform="rotate(180 75 70)" fill="none" stroke="${green ? '#3ddc84' : '#5aa2ff'}" stroke-width="7" stroke-linecap="round" opacity="${o.toFixed(3)}"/>`;
+      w += `<path d="M ${75 - r * .7} ${70 - r * .7} A ${r} ${r} 0 0 1 ${75 - r * .7} ${70 + r * .7}" fill="none" stroke="${green ? '#3ddc84' : '#5aa2ff'}" stroke-width="7" stroke-linecap="round" opacity="${o.toFixed(3)}"/>`;
+    }
+    $('waves').innerHTML = w;
+
+    // labels
+    const lab = [['l1', 16.8], ['l2', 18.0], ['l3', 19.8]];
+    lab.forEach(([id, t0], i) => {
+      const next = lab[i + 1] ? lab[i + 1][1] : 99;
+      const k = spring(t - t0, 14, .5);
+      const dim = t > next ? .28 : 1;
+      css(id, { o: clamp((t - t0) / .15) * dim * (1 - prog(t, 22.3, 22.6)), x: (1 - k) * -40 });
+    });
+
+    // cursor to Done
+    if (doneTarget) {
+      const m = easeInOut(prog(t, 21.2, 22.1));
+      const cx = lerp(1560, doneTarget.x, m), cy = lerp(1010, doneTarget.y, m) - 4 * Math.sin(m * Math.PI) * 30;
+      const press = t > 22.2 && t < 22.38 ? .88 : 1;
+      css('cursor', { x: cx, y: cy, s: press, o: prog(t, 21.1, 21.3) * (1 - prog(t, 22.7, 22.9)) });
+    }
+    pop('dCap', t, 22.65, 30);
+  }
+
+  // ---------- E ----------
+  if (t >= 24.2 && t < 31.4) {
+    pop('eTop', t, 24.35, 30);
+    pop('term', t, 24.25, 60, .97);
+    const kp = spring(t - 24.45, 11, .55);
+    css('ePhone', { o: clamp((t - 24.45) / .2), x: (1 - kp) * 200 });
+    css('eFoot', { o: prog(t, 25.2, 25.6) });
+
+    let h = '';
+    const cmd = typed(TERM.cmd, t, 24.7, 26);
+    h += `<span class="p">~/sample-app ❯</span> ${esc(cmd)}${t < 25.4 && Math.floor(t * 4) % 2 === 0 ? '▍' : ''}\n`;
+    if (t >= 25.45) h += `<span class="dim">List of devices attached</span>\n${esc(TERM.dev)}\n`;
+    if (t >= 25.9) {
+      h += `\n<span class="dim">● coding agent</span>\n`;
+      const ask = typed(TERM.ask, t, 26.05, 44);
+      h += `<div class="agentBox"><span class="p">›</span> ${esc(ask)}${ask.length < TERM.ask.length || Math.floor(t * 4) % 2 === 0 ? '▍' : ''}</div>`;
+    }
+    for (const [t0, line] of TERM.tools) if (t >= t0) h += `<span class="tool">  ▸ ${esc(line)}</span>\n`;
+    if (t >= TERM.done[0]) h += `\n<span class="ok">  ${esc(TERM.done[1])}</span>\n`;
+    $('termBody').innerHTML = h;
+
+    // phone screens follow the tool calls
+    $('ev1').style.opacity = t < 28.15 ? 1 : 0;
+    $('ev2').style.opacity = t >= 28.15 && t < 29.25 ? 1 : 0;
+    $('ev3').style.opacity = t >= 29.25 ? 1 : 0;
+    css('ev2', { s: lerp(.94, 1, easeOut(prog(t, 28.15, 28.4))) });
+    const rp = prog(t, 29.05, 29.3);
+    $('ripple').style.width = $('ripple').style.height = (rp * 320) + 'px';
+    $('ripple').style.opacity = t > 29.05 ? (1 - rp) * .9 : 0;
+    const flash = Math.max(...[28.55, 29.55].map(e => t > e ? Math.max(0, 1 - (t - e) / .18) : 0));
+    $('capFlash').style.opacity = flash * .5;
+  }
+
+  // ---------- F ----------
+  if (t >= 31.0) {
+    const k = spring(t - 31.1, 11, .5);
+    css('fIcon', { o: clamp((t - 31.1) / .2), s: lerp(.6, 1, k), y: (1 - k) * 30 });
+    pop('fName', t, 31.35, 40);
+    pop('fTag', t, 31.7, 30);
+    pop('fDesc', t, 32.05, 20);
+    pop('fUrl', t, 32.35, 20);
+    css('fSpec', { o: prog(t, 32.7, 33.0) });
+  }
+};
+window.DURATION = DURATION;
+seek(new URLSearchParams(location.search).get('t') * 1 || 0);
+</script>
+</body>
+</html>

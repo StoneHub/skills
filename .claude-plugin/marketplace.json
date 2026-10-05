@@ -1,0 +1,17 @@
+{
+  "name": "stonehub-skills",
+  "owner": { "name": "StoneHub" },
+  "metadata": { "description": "Shared Claude Code skills from StoneHub." },
+  "plugins": [
+    {
+      "name": "promo-video",
+      "source": "./plugins/promo-video",
+      "description": "Direct and build promo, launch, explainer and social videos in code (HTML/JS animation, Playwright + ffmpeg render, SFX, music, ElevenLabs voiceover)."
+    },
+    {
+      "name": "android-cli",
+      "source": "./plugins/android-cli",
+      "description": "Android project creation, deployment, SDK management and diagnostics with the `android` command-line tool."
+    }
+  ]
+}

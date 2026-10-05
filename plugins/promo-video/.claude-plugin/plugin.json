@@ -1,0 +1,6 @@
+{
+  "name": "promo-video",
+  "version": "0.1.0",
+  "description": "Direct and build promo, launch, explainer and social videos in code (HTML/JS animation, Playwright + ffmpeg render, SFX, music, ElevenLabs voiceover).",
+  "author": { "name": "StoneHub" }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "android-cli",
+  "version": "0.1.0",
+  "description": "Android project creation, deployment, SDK management and diagnostics with the `android` command-line tool.",
+  "author": { "name": "StoneHub" }
+}

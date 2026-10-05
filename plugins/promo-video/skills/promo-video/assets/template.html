@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Promo</title>
+<!-- Web fonts are fine (the renderer waits for window.ready). Prefer the brand's real fonts; note any substitution. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=block" rel="stylesheet">
+<!-- Optional: <script src="vo/voice.js"></script> from voiceover.py exposes window.VOICE for timing + captions. -->
+<style>
+  :root {
+    --bg: #0b0b0d; --fg: #f5f3ee; --accent: #ffd400; --muted: rgba(245,243,238,.6);
+    --display: "Inter", -apple-system, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  /* The renderer sets the viewport (1920x1080, 1080x1920, ...). Size from the viewport, lay out per aspect ratio. */
+  html, body { margin: 0; width: 100vw; height: 100vh; overflow: hidden; background: var(--bg); }
+  body { font-family: var(--display); color: var(--fg); -webkit-font-smoothing: antialiased; }
+  .scene { position: absolute; inset: 0; display: none; }
+  .center { position: absolute; left: 0; right: 0; text-align: center; }
+  /* No CSS transitions/animations: every visual must be a pure function of t. */
+  #title { top: 40vh; font: 900 7vw/1 var(--display); letter-spacing: -.03em; }
+  #title b { color: var(--accent); }
+  #typed { top: 45vh; font: 600 4vw var(--display); }
+  #end { top: 40vh; font: 800 5vw var(--display); }
+  #cap { position: absolute; left: 10vw; right: 10vw; bottom: 7vh; text-align: center; font: 700 3.2vw/1.25 var(--display); text-shadow: 0 2px 12px #000; }
+  #cap span.on { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="scene" id="s1"><div class="center" id="title">Make it <b>move.</b></div></div>
+<div class="scene" id="s2"><div class="center" id="typed"></div></div>
+<div class="scene" id="s3"><div class="center" id="end">your-product.com</div></div>
+<div id="cap"></div>
+
+<script>
+// ---------- helpers: everything is a function of t ----------
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, a, b) => clamp((t - a) / (b - a));               // 0→1 between a and b
+const lerp = (a, b, x) => a + (b - a) * x;
+const easeOut = x => 1 - Math.pow(1 - x, 3);
+const easeInOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+// Damped spring 0→1 with slight overshoot; x = seconds since start. Gives motion a premium feel.
+function spring(x, w = 13, z = 0.5) {
+  if (x <= 0) return 0;
+  const wd = w * Math.sqrt(1 - z * z);
+  return 1 - Math.exp(-z * w * x) * (Math.cos(wd * x) + (z * w / wd) * Math.sin(wd * x));
+}
+function css(el, o) {                                               // o: {x, y, s, r, o, extra}
+  if (typeof el === 'string') el = $(el);
+  const tf = [];
+  if (o.x !== undefined || o.y !== undefined) tf.push(`translate(${o.x || 0}px,${o.y || 0}px)`);
+  if (o.s !== undefined) tf.push(`scale(${o.s})`);
+  if (o.r !== undefined) tf.push(`rotate(${o.r}deg)`);
+  if (o.extra) tf.push(o.extra);
+  if (tf.length) el.style.transform = tf.join(' ');
+  if (o.o !== undefined) el.style.opacity = o.o;
+}
+function pop(el, t, t0, dy = 40, s0 = .92) {                        // fade + spring up, starting at t0
+  const k = spring(t - t0);
+  css(el, { o: clamp((t - t0) / .18), y: (1 - k) * dy, s: lerp(s0, 1, k) });
+}
+const typed = (str, t, t0, cps) => str.slice(0, clamp(Math.floor((t - t0) * cps), 0, str.length));
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// ---------- voice-driven timing (optional) ----------
+const V = window.VOICE;                                             // from vo/voice.js
+const at = (id, fallback) => V && V.lines[id] ? V.lines[id].start : fallback;
+function captions(t) {                                              // burned-in captions from word timings
+  if (!V) return '';
+  const line = Object.values(V.lines).find(l => t >= l.start - .05 && t <= l.end + .3);
+  if (!line) return '';
+  return line.words.map(w => `<span class="${t >= w.start ? 'on' : ''}">${w.w}</span>`).join(' ');
+}
+
+// ---------- fonts: load every face used anywhere before frame 0 (hidden scenes don't trigger loads) ----------
+window.ready = Promise.all(['900 100px Inter', '800 100px Inter', '600 100px Inter'].map(f => document.fonts.load(f)));
+
+// ---------- timeline ----------
+const SCENES = { s1: [0, 2.5], s2: [2.5, 5.0], s3: [5.0, 7.0] };
+window.DURATION = 7.0;
+
+window.seek = function (t) {
+  for (const [id, [a, b]] of Object.entries(SCENES)) $(id).style.display = t >= a && t < b ? 'block' : 'none';
+  if (t < 2.5) pop('title', t, .2, 60, .85);
+  if (t >= 2.5 && t < 5) $('typed').textContent = typed('Every frame is a function of time.', t, 2.7, 20);
+  if (t >= 5) pop('end', t, 5.1, 30);
+  $('cap').innerHTML = captions(t);
+};
+</script>
+</body>
+</html>
